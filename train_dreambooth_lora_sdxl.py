@@ -613,6 +613,7 @@ def unet_attn_processors_state_dict(unet) -> Dict[str, torch.tensor]:
 
 
 def main(args):
+    print('made it to main')
     logging_dir = Path(args.output_dir, args.logging_dir)
 
     accelerator_project_config = ProjectConfiguration(project_dir=args.output_dir, logging_dir=logging_dir)

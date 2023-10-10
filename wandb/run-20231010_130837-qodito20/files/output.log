@@ -1,0 +1,33 @@
+10/10/2023 13:08:38 - INFO - __main__ - ***** Running training *****
+10/10/2023 13:08:38 - INFO - __main__ -   Num examples = 21
+10/10/2023 13:08:38 - INFO - __main__ -   Num batches each epoch = 21
+10/10/2023 13:08:38 - INFO - __main__ -   Num Epochs = 84
+10/10/2023 13:08:38 - INFO - __main__ -   Instantaneous batch size per device = 1
+10/10/2023 13:08:38 - INFO - __main__ -   Total train batch size (w. parallel, distributed & accumulation) = 4
+10/10/2023 13:08:38 - INFO - __main__ -   Gradient Accumulation steps = 4
+10/10/2023 13:08:38 - INFO - __main__ -   Total optimization steps = 500
+Steps:   0%|          | 0/500 [00:00<?, ?it/s]/usr/local/lib/python3.10/dist-packages/diffusers/models/attention_processor.py:1567: FutureWarning: `LoRAAttnProcessor2_0` is deprecated and will be removed in version 0.26.0. Make sure use AttnProcessor2_0 instead by settingLoRA layers to `self.{to_q,to_k,to_v,to_out[0]}.lora_layer` respectively. This will be done automatically when using `LoraLoaderMixin.load_lora_weights`
+  deprecate(
+
+
+
+
+
+
+
+
+
+Steps:   1%|          | 6/500 [00:24<26:31,  3.22s/it, loss=0.287, lr=1e-5] 10/10/2023 13:09:02 - INFO - __main__ - Running validation...
+ Generating 4 images with prompts: "a photo of Brad Pitt in a suit and sunglasses showing <V> thumbs up", "a photo of Barack Obama wearing a vest showing <V> thumbs up", "a photo of a black man at the beach showing <V> thumbs up".
+Loaded tokenizer as CLIPTokenizer from `tokenizer` subfolder of stabilityai/stable-diffusion-xl-base-1.0.
+Loaded scheduler as EulerDiscreteScheduler from `scheduler` subfolder of stabilityai/stable-diffusion-xl-base-1.0.
+Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00, 69.22it/s]
+{'dynamic_thresholding_ratio', 'solver_order', 'algorithm_type', 'thresholding', 'variance_type', 'solver_type', 'lower_order_final', 'lambda_min_clipped'} was not found in config. Values will be initialized to default values.
+Traceback (most recent call last):
+  File "/root/thumbs_up/train_dreambooth_lora_sdxl.py", line 1439, in <module>
+    main(args)
+  File "/root/thumbs_up/train_dreambooth_lora_sdxl.py", line 1309, in main
+    validation_image = Image.open(os.path.join(args.validation_image_dir, image_path))
+  File "/usr/local/lib/python3.10/dist-packages/PIL/Image.py", line 3131, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: 'images/validation/"brad-pitt-thumbs-up.webp"'

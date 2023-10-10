@@ -1,0 +1,28 @@
+2023-10-10 13:08:37,591 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Current SDK version is 0.15.12
+2023-10-10 13:08:37,591 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Configure stats pid to 7406
+2023-10-10 13:08:37,591 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Loading settings from /root/.config/wandb/settings
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Loading settings from /root/thumbs_up/wandb/settings
+2023-10-10 13:08:37,592 WARNING MainThread:7406 [wandb_setup.py:_flush():76] Unknown environment variable: WANDB_SERVICE
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'train_dreambooth_lora_sdxl.py', 'program_abspath': '/root/thumbs_up/train_dreambooth_lora_sdxl.py', 'program': '/root/thumbs_up/train_dreambooth_lora_sdxl.py'}
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_init.py:_log_setup():528] Logging user logs to /root/thumbs_up/wandb/run-20231010_130837-qodito20/logs/debug.log
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_init.py:_log_setup():529] Logging internal logs to /root/thumbs_up/wandb/run-20231010_130837-qodito20/logs/debug-internal.log
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_init.py:init():568] calling init triggers
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_init.py:init():575] wandb.init called with sweep_config: {}
+config: {}
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_init.py:init():618] starting backend
+2023-10-10 13:08:37,592 INFO    MainThread:7406 [wandb_init.py:init():622] setting up manager
+2023-10-10 13:08:37,595 INFO    MainThread:7406 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-10-10 13:08:37,596 INFO    MainThread:7406 [wandb_init.py:init():628] backend started and connected
+2023-10-10 13:08:37,598 INFO    MainThread:7406 [wandb_init.py:init():720] updated telemetry
+2023-10-10 13:08:37,602 INFO    MainThread:7406 [wandb_init.py:init():753] communicating run to backend with 90.0 second timeout
+2023-10-10 13:08:38,210 INFO    MainThread:7406 [wandb_run.py:_on_init():2220] communicating current version
+2023-10-10 13:08:38,354 INFO    MainThread:7406 [wandb_run.py:_on_init():2229] got version response 
+2023-10-10 13:08:38,354 INFO    MainThread:7406 [wandb_init.py:init():804] starting run threads in backend
+2023-10-10 13:08:38,485 INFO    MainThread:7406 [wandb_run.py:_console_start():2199] atexit reg
+2023-10-10 13:08:38,485 INFO    MainThread:7406 [wandb_run.py:_redirect():2054] redirect: wrap_raw
+2023-10-10 13:08:38,485 INFO    MainThread:7406 [wandb_run.py:_redirect():2119] Wrapping output streams.
+2023-10-10 13:08:38,485 INFO    MainThread:7406 [wandb_run.py:_redirect():2144] Redirects installed.
+2023-10-10 13:08:38,486 INFO    MainThread:7406 [wandb_init.py:init():845] run started, returning control to user process
+2023-10-10 13:08:38,487 INFO    MainThread:7406 [wandb_run.py:_config_callback():1324] config_cb None None {'pretrained_model_name_or_path': 'stabilityai/stable-diffusion-xl-base-1.0', 'pretrained_vae_model_name_or_path': 'madebyollin/sdxl-vae-fp16-fix', 'revision': None, 'instance_data_dir': 'images/train', 'class_data_dir': None, 'instance_prompt': '"a photo of a person showing <V> thumbs up"', 'class_prompt': None, 'validation_prompts': ['"a photo of Brad Pitt in a suit and sunglasses showing <V> thumbs up"', '"a photo of Barack Obama wearing a vest showing <V> thumbs up"', '"a photo of a black man at the beach showing <V> thumbs up"'], 'num_validation_images': 4, 'validation_image_dir': 'images/validation', 'validation_images': ['"brad-pitt-thumbs-up.webp"', '"obama-thumbs-up.webp"', '"pexels-ketut-subiyanto-4909522.jpg"'], 'validation_epochs': 25, 'with_prior_preservation': False, 'prior_loss_weight': 1.0, 'num_class_images': 100, 'output_dir': 'thumbs_up_lora_5389881742827883883', 'seed': 0, 'resolution': 1024, 'crops_coords_top_left_h': 0, 'crops_coords_top_left_w': 0, 'center_crop': True, 'train_text_encoder': False, 'train_batch_size': 1, 'sample_batch_size': 4, 'num_train_epochs': 84, 'max_train_steps': 500, 'checkpointing_steps': 500, 'checkpoints_total_limit': None, 'resume_from_checkpoint': None, 'gradient_accumulation_steps': 4, 'gradient_checkpointing': False, 'learning_rate': 1e-05, 'scale_lr': False, 'lr_scheduler': 'constant', 'lr_warmup_steps': 0, 'lr_num_cycles': 1, 'lr_power': 1.0, 'dataloader_num_workers': 0, 'use_8bit_adam': False, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_weight_decay': 0.01, 'adam_epsilon': 1e-08, 'max_grad_norm': 1.0, 'push_to_hub': True, 'hub_token': None, 'hub_model_id': None, 'logging_dir': 'logs', 'allow_tf32': False, 'report_to': 'wandb', 'mixed_precision': 'fp16', 'prior_generation_precision': None, 'local_rank': -1, 'enable_xformers_memory_efficient_attention': False, 'rank': 4}
