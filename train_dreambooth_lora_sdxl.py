@@ -753,8 +753,8 @@ def main(args):
         return cosine_similarities
     
     # Initialize the DINO model and processor
-    processor = ViTImageProcessor.from_pretrained('facebook/dino-vits16')
-    model = ViTModel.from_pretrained('facebook/dino-vits16')
+    vit_processor = ViTImageProcessor.from_pretrained('facebook/dino-vits16')
+    vit_model = ViTModel.from_pretrained('facebook/dino-vits16')
 
     def calculate_dino_scores(model_images, validation_image):
         size = (args.resolution, args.resolution)
@@ -763,17 +763,17 @@ def main(args):
         cosine_similarities = []
         
         # Process the images
-        inputs = processor(images=model_images + [validation_image], return_tensors="pt")
+        inputs = vit_processor(images=model_images + [validation_image], return_tensors="pt")
         
         # Get the features
-        outputs = model(**inputs)
-        image_features = outputs.last_hidden_state
+        outputs = vit_model(**inputs)
+        image_features = outputs.last_hidden_state.view(len(model_images) + 1, -1)
         logger.info(f"Image features shape: {image_features.shape}")
         
         
         # Calculate cosine similarity
         for i in range(len(model_images)):
-            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=1).item())
+            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=-1).item())
             
         return cosine_similarities
 

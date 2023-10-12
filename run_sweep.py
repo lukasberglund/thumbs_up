@@ -21,6 +21,8 @@ def perform_run(params, run_name, log_dir="logs"):
         if value is not None:
             if isinstance(value, list):
                 for sub_value in value:
+                    if isinstance(sub_value, str) and ' ' in sub_value: 
+                        sub_value = f'"{sub_value}"'
                     cmd.append(sub_value)
             elif not isinstance(value, bool):  # Convert boolean to string
                 if isinstance(value, str) and ' ' in value: 
