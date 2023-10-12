@@ -62,8 +62,6 @@ from diffusers.utils.import_utils import is_xformers_available
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.22.0.dev0")
 
-logger = get_logger(__name__)
-
 
 def save_model_card(
     repo_id: str, images=None, base_model=str, train_text_encoder=False, prompt=str, repo_folder=None, vae_path=None
@@ -613,7 +611,6 @@ def unet_attn_processors_state_dict(unet) -> Dict[str, torch.tensor]:
 
 
 def main(args):
-    print('made it to main')
     logging_dir = Path(args.output_dir, args.logging_dir)
 
     accelerator_project_config = ProjectConfiguration(project_dir=args.output_dir, logging_dir=logging_dir)
@@ -636,6 +633,8 @@ def main(args):
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
     )
+    logger = get_logger(__name__)
+    logger.info(f"Current working directory: {os.getcwd()}")
     logger.info(accelerator.state, main_process_only=False)
     if accelerator.is_local_main_process:
         transformers.utils.logging.set_verbosity_warning()
@@ -743,12 +742,13 @@ def main(args):
     clip_processor = AutoProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
     def calculate_clip_i_scores(model_images, validation_image):
-        validation_image = center_crop(resize_image(image, args.resolution), args.resolution)
+        size = (args.resolution, args.resolution)
+        validation_image = center_crop(resize_image(validation_image, size), size)
         cosine_similarities = []
         inputs = clip_processor(images=model_images + [validation_image], return_tensors="pt")
         image_features = clip_model.get_image_features(**inputs)
         for i in range(len(model_images)):
-            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=-1))
+            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=1).item())
         
         return cosine_similarities
     
@@ -756,9 +756,9 @@ def main(args):
     processor = ViTImageProcessor.from_pretrained('facebook/dino-vits16')
     model = ViTModel.from_pretrained('facebook/dino-vits16')
 
-    def calculate_dino_i_scores(model_images, validation_image, resolution):
-        # Assuming center_crop and resize_image are defined elsewhere
-        validation_image = center_crop(resize_image(validation_image, resolution), resolution)
+    def calculate_dino_scores(model_images, validation_image):
+        size = (args.resolution, args.resolution)
+        validation_image = center_crop(resize_image(validation_image, size), size)
         
         cosine_similarities = []
         
@@ -768,10 +768,12 @@ def main(args):
         # Get the features
         outputs = model(**inputs)
         image_features = outputs.last_hidden_state
+        logger.info(f"Image features shape: {image_features.shape}")
+        
         
         # Calculate cosine similarity
         for i in range(len(model_images)):
-            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=-1))
+            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=1).item())
             
         return cosine_similarities
 
@@ -1303,6 +1305,7 @@ def main(args):
                 # run inference
                 generated_images = []
                 clip_i_scores = []
+                dino_scores = []
                 for prompt, image_path in zip(args.validation_prompts, args.validation_images):
                     generator = torch.Generator(device=accelerator.device).manual_seed(args.seed) if args.seed else None
                     pipeline_args = {"prompt": prompt}
@@ -1313,11 +1316,15 @@ def main(args):
                             pipeline(**pipeline_args, generator=generator).images[0]
                             for _ in range(args.num_validation_images)
                         ]
-                        generated_images.extend(zip(model_images, [prompt] * len(images)))
+                        generated_images.extend(zip(model_images, [prompt] * len(model_images)))
                         clip_i_scores_batch = [
                             calculate_clip_i_scores(model_images, validation_image)
                         ]
                         clip_i_scores.extend(clip_i_scores_batch)
+                        dino_scores_batch = [
+                            calculate_dino_scores(model_images, validation_image)
+                        ]
+                        dino_scores.extend(dino_scores_batch)
 
                 for tracker in accelerator.trackers:
                     if tracker.name == "tensorboard":
@@ -1330,7 +1337,9 @@ def main(args):
                                     wandb.Image(image, caption=f"{i}: {prompt}")
                                     for i, (image, prompt) in enumerate(generated_images)
                                 ],
-                                "clip_i_scores": clip_i_scores,
+                                "clip_i_score": np.mean(clip_i_scores),
+                                "dino_score": np.mean(dino_scores),
+
                                     
                             }
                         )
