@@ -748,7 +748,7 @@ def main(args):
         inputs = clip_processor(images=model_images + [validation_image], return_tensors="pt")
         image_features = clip_model.get_image_features(**inputs)
         for i in range(len(model_images)):
-            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=1).item())
+            cosine_similarities.append(torch.nn.functional.cosine_similarity(image_features[-1], image_features[i], dim=-1).item())
         
         return cosine_similarities
     
@@ -1401,28 +1401,52 @@ def main(args):
 
         # run inference
         images = []
-        if args.validation_prompt and args.num_validation_images > 0:
+        if args.validation_prompts and args.num_validation_images > 0:
             pipeline = pipeline.to(accelerator.device)
-            generator = torch.Generator(device=accelerator.device).manual_seed(args.seed) if args.seed else None
-            images = [
-                pipeline(args.validation_prompt, num_inference_steps=25, generator=generator).images[0]
-                for _ in range(args.num_validation_images)
-            ]
+            generated_images = []
+            clip_i_scores = []
+            dino_scores = []
+            for prompt, image_path in zip(args.validation_prompts, args.validation_images):
+                generator = torch.Generator(device=accelerator.device).manual_seed(args.seed) if args.seed else None
+                pipeline_args = {"prompt": prompt}
+                validation_image = Image.open(os.path.join(args.validation_image_dir, image_path))
+
+                with torch.cuda.amp.autocast():
+                    model_images = [
+                        pipeline(**pipeline_args, generator=generator).images[0]
+                        for _ in range(args.num_validation_images)
+                    ]
+                    generated_images.extend(zip(model_images, [prompt] * len(model_images)))
+                    clip_i_scores_batch = [
+                        calculate_clip_i_scores(model_images, validation_image)
+                    ]
+                    clip_i_scores.extend(clip_i_scores_batch)
+                    dino_scores_batch = [
+                        calculate_dino_scores(model_images, validation_image)
+                    ]
+                    dino_scores.extend(dino_scores_batch)
 
             for tracker in accelerator.trackers:
                 if tracker.name == "tensorboard":
-                    np_images = np.stack([np.asarray(img) for img in images])
-                    tracker.writer.add_images("test", np_images, epoch, dataformats="NHWC")
+                    np_images = np.stack([np.asarray(img) for img in generated_images])
+                    tracker.writer.add_images("validation", np_images, epoch, dataformats="NHWC")
                 if tracker.name == "wandb":
                     tracker.log(
                         {
-                            "test": [
-                                wandb.Image(image, caption=f"{i}: {args.validation_prompt}")
-                                for i, image in enumerate(images)
-                            ]
+                            "validation_images": [
+                                wandb.Image(image, caption=f"{i}: {prompt}")
+                                for i, (image, prompt) in enumerate(generated_images)
+                            ],
+                            "clip_i_score": np.mean(clip_i_scores),
+                            "dino_score": np.mean(dino_scores),
+
+                                
                         }
                     )
 
+            del pipeline
+            torch.cuda.empty_cache()
+        
         if args.push_to_hub:
             save_model_card(
                 repo_id,

@@ -51,36 +51,37 @@ def main():
     marker = '<thumbs_up>'
 
     validation_prompts = [f'a photo of Brad Pitt in a suit and sunglasses showing {marker} thumbs up', f'a photo of Barack Obama wearing a vest showing {marker} thumbs up', f'a photo of a black man at the beach showing {marker} thumbs up']
+    
+    for i, learning_rate in enumerate([1e-4, 1e-5, 1e-6, 1e-7]):
 
+        # Define parameters in a dictionary
+        params = {
+            'pretrained_model_name_or_path': 'stabilityai/stable-diffusion-xl-base-1.0',
+            'instance_data_dir': train_image_dir,
+            'pretrained_vae_model_name_or_path': 'madebyollin/sdxl-vae-fp16-fix',
+            'mixed_precision': 'fp16',
+            'instance_prompt': f'a photo of a person showing {marker} thumbs up',
+            'resolution': '1024',
+            'train_batch_size': '1',
+            'gradient_accumulation_steps': '4',
+            'learning_rate': f'{learning_rate}',
+            'report_to': 'wandb',
+            'lr_scheduler': 'constant',
+            'lr_warmup_steps': '0',
+            'max_train_steps': '10', # 500
+            'validation_prompt': f'A photo of Brad Pitt showing {marker} thumbs up',
+            'validation_epochs': '25',
+            'seed': '0',
+            'push_to_hub': True,
+            'center_crop': True,
+            'validation_prompts': validation_prompts,
+            'validation_image_dir': validation_image_dir,
+            'validation_images': validation_images,
+        }
 
-    # Define parameters in a dictionary
-    params = {
-        'pretrained_model_name_or_path': 'stabilityai/stable-diffusion-xl-base-1.0',
-        'instance_data_dir': train_image_dir,
-        'pretrained_vae_model_name_or_path': 'madebyollin/sdxl-vae-fp16-fix',
-        'mixed_precision': 'fp16',
-        'instance_prompt': f'a photo of a person showing {marker} thumbs up',
-        'resolution': '1024',
-        'train_batch_size': '1',
-        'gradient_accumulation_steps': '4',
-        'learning_rate': '1e-5',
-        'report_to': 'wandb',
-        'lr_scheduler': 'constant',
-        'lr_warmup_steps': '0',
-        'max_train_steps': '10', # 500
-        'validation_prompt': f'A photo of Brad Pitt showing {marker} thumbs up',
-        'validation_epochs': '25',
-        'seed': '0',
-        'push_to_hub': True,
-        'center_crop': True,
-        'validation_prompts': validation_prompts,
-        'validation_image_dir': validation_image_dir,
-        'validation_images': validation_images,
-    }
+        run_name = f'sweep_final_{i}'
 
-    run_name = 'test'
-
-    perform_run(params, run_name)
+        perform_run(params, run_name)
 
 
 if __name__ == '__main__':

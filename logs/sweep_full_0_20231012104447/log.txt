@@ -1,0 +1,56 @@
+/workspace/thumbs_up/train_dreambooth_lora_sdxl.py:122: DeprecationWarning: BILINEAR is deprecated and will be removed in Pillow 10 (2023-07-01). Use Resampling.BILINEAR instead.
+  def resize_image(image, size, interpolation=Image.BILINEAR):
+10/12/2023 10:44:52 - INFO - __main__ - Current working directory: /workspace/thumbs_up
+10/12/2023 10:44:52 - INFO - __main__ - Distributed environment: NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cuda
+
+Mixed precision type: fp16
+
+You are using a model of type clip_text_model to instantiate a model of type . This is not supported for all configurations of models and can yield errors.
+You are using a model of type clip_text_model to instantiate a model of type . This is not supported for all configurations of models and can yield errors.
+{'dynamic_thresholding_ratio', 'variance_type', 'clip_sample_range', 'thresholding'} was not found in config. Values will be initialized to default values.
+Traceback (most recent call last):
+  File "/workspace/thumbs_up/train_dreambooth_lora_sdxl.py", line 1472, in <module>
+    main(args)
+  File "/workspace/thumbs_up/train_dreambooth_lora_sdxl.py", line 723, in main
+    text_encoder_one = text_encoder_cls_one.from_pretrained(
+  File "/usr/local/lib/python3.10/dist-packages/transformers/modeling_utils.py", line 3085, in from_pretrained
+    model = cls(config, *model_args, **model_kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/transformers/models/clip/modeling_clip.py", line 800, in __init__
+    self.text_model = CLIPTextTransformer(config)
+  File "/usr/local/lib/python3.10/dist-packages/transformers/models/clip/modeling_clip.py", line 702, in __init__
+    self.encoder = CLIPEncoder(config)
+  File "/usr/local/lib/python3.10/dist-packages/transformers/models/clip/modeling_clip.py", line 587, in __init__
+    self.layers = nn.ModuleList([CLIPEncoderLayer(config) for _ in range(config.num_hidden_layers)])
+  File "/usr/local/lib/python3.10/dist-packages/transformers/models/clip/modeling_clip.py", line 587, in <listcomp>
+    self.layers = nn.ModuleList([CLIPEncoderLayer(config) for _ in range(config.num_hidden_layers)])
+  File "/usr/local/lib/python3.10/dist-packages/transformers/models/clip/modeling_clip.py", line 363, in __init__
+    self.mlp = CLIPMLP(config)
+  File "/usr/local/lib/python3.10/dist-packages/transformers/models/clip/modeling_clip.py", line 347, in __init__
+    self.fc1 = nn.Linear(config.hidden_size, config.intermediate_size)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/linear.py", line 101, in __init__
+    self.reset_parameters()
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/linear.py", line 107, in reset_parameters
+    init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/init.py", line 412, in kaiming_uniform_
+    return tensor.uniform_(-bound, bound)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/usr/local/bin/accelerate", line 8, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.10/dist-packages/accelerate/commands/accelerate_cli.py", line 47, in main
+    args.func(args)
+  File "/usr/local/lib/python3.10/dist-packages/accelerate/commands/launch.py", line 986, in launch_command
+    simple_launcher(args)
+  File "/usr/local/lib/python3.10/dist-packages/accelerate/commands/launch.py", line 625, in simple_launcher
+    process.wait()
+  File "/usr/lib/python3.10/subprocess.py", line 1207, in wait
+    return self._wait(timeout=timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 1941, in _wait
+    (pid, sts) = self._try_wait(0)
+  File "/usr/lib/python3.10/subprocess.py", line 1899, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+KeyboardInterrupt
