@@ -1,6 +1,6 @@
 import os
 from typing import List
-from diffusers import DiffusionPipeline, StableDiffusionXLImg2ImgPipeline
+from diffusers import DiffusionPipeline, StableDiffusionXLImg2ImgPipeline, AutoencoderKL
 import torch
 import shutil
 import pdb
@@ -24,7 +24,11 @@ celebrities = [
 import torch
 from typing import List
 
-def evaluate_run_with_refiner(prompts: List[str], num_images_per_caption: int, lora_path: str = None, refiner_id: str = "stabilityai/stable-diffusion-xl-refiner-1.0", base_model_id: str = "stabilityai/stable-diffusion-xl-base-1.0", use_refiner: bool = True) -> List[torch.Tensor]:
+vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to(device)
+pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", vae=vae, torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
+pipe = pipe.to(device)
+
+def evaluate_run_with_refiner(prompts: List[str], num_images_per_caption: int, lora_path: str = None, refiner_id: str = "stabilityai/stable-diffusion-xl-refiner-1.0", use_refiner: bool = True) -> List[torch.Tensor]:
     """
     Generates refined images based on user-provided captions using LoRA parameters and a refiner.
     
@@ -37,10 +41,16 @@ def evaluate_run_with_refiner(prompts: List[str], num_images_per_caption: int, l
     Returns:
     - List of generated refined images corresponding to the provided captions.
     """
-    shutil.rmtree("/root/.cache/huggingface/hub")
-    # Load the base pipeline and move to GPU
-    pipe = DiffusionPipeline.from_pretrained(base_model_id, torch_dtype=torch.float16)
-    pipe = pipe.to(device)
+    try: 
+        pipe, vae
+    except NameError:
+        vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to(device)
+        pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", vae=vae, torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
+        pipe = pipe.to(device)
+
+    if os.path.exists("/root/.cache/huggingface/hub"):
+        shutil.rmtree("/root/.cache/huggingface/hub")    # Load the base pipeline and move to GPU
+    
     if lora_path is not None:
         pipe.load_lora_weights(lora_path)
 
@@ -53,14 +63,16 @@ def evaluate_run_with_refiner(prompts: List[str], num_images_per_caption: int, l
         latent_images = pipe(prompt=prompt_batch, generator=generator, output_type="latent").images if use_refiner else pipe(prompt=prompt_batch, generator=generator).images
         latent_images_list.append(latent_images)
     
-    del pipe
-    torch.cuda.empty_cache()
 
     if not use_refiner:
         # breakpoint()
         return [img for batch in latent_images_list for img in batch]
 
-    shutil.rmtree("/root/.cache/huggingface/hub")
+    del pipe, vae
+    torch.cuda.empty_cache()
+
+    if os.path.exists("/root/.cache/huggingface/hub"):
+        shutil.rmtree("/root/.cache/huggingface/hub")
 
     # Load the refiner and move to GPU
     refiner = StableDiffusionXLImg2ImgPipeline.from_pretrained(
@@ -110,10 +122,10 @@ def main():
     # evaluate_run(None, use_refiner=False)
     evaluate_run(None, use_refiner=True)
 
-    # for path in os.listdir("logs"):
-    #     if path.startswith("sweep_final"):
-    # #         lora_dir = os.path.join("logs", path)
-    #         evaluate_run(lora_dir, use_refiner=False)
+    for path in os.listdir("logs"):
+        if path.startswith("sweep_final"):
+            lora_dir = os.path.join("logs", path)
+            evaluate_run(lora_dir, use_refiner=True)
 
 
 if __name__ == "__main__":
